@@ -1,11 +1,38 @@
-pipeline {
+pipeline{
     agent any
+    parameters {
+  choice choices: ['2.6.5'], name: 'build'
+  string defaultValue: 'productions server', description: 'scheduleing in new build', name: 'build environment', trim: true
+}
 
-    stages {
-        stage('git') {
-            steps {
-                git url:https://github.com/chukkakishore/dfvb.git
-            }
+    triggers {
+  cron 'H/3 * * * *'
+}
+stages{
+    stage('clone the repo'){
+        steps{
+            git branch: 'main', url: 'https://github.com/chukkakishore/drf.git'
         }
     }
+    stage('maven'){
+        steps{
+            sh 'mvn -version'
+        }
+    }
+    stage('package'){
+        steps{
+            sh 'mvn package'
+        }
+    }
+    stage('mvn clean'){
+        steps{
+            sh 'mvn clean'
+        }
+    }
+}
+post{
+    always{
+        mail bcc: '', body: 'builsdd', cc: '', from: '', replyTo: '', subject: 'email alert', to: 'kishorchukka035@gmail.com'
+    }
+}
 }
